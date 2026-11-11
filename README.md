@@ -12,6 +12,8 @@ The labs runlab publishes. `tutorial/` is the hands-on course that teaches how t
 | 6 | `watch-a-request` | Serve in one pane, call from the other, watch the log |
 | 7 | `build-your-own` | The author pack, `trylab`, and publishing |
 
+`pr-reviews/` holds labs for trying a pull request of an open source project on your own machine with `trylab pr`. They are not for runlabs.io: see its README.
+
 `samples/` holds the other labs: earlier samples (`alerts`, `basics`, `capture`, `docker`), `nginx`, which has its own disk and snapshot, and `directives` and `layout`, which share a disk built from their `data/` folder. Connecting this repository and pressing Refresh builds the disks that need building.
 
 A lab that uses the shared default disk (no `setup.sh`, no `data/` that the lesson reads inside the lab) needs no disk build.
