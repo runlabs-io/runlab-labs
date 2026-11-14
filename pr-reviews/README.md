@@ -5,6 +5,7 @@ Labs for trying a pull request of an open source project in a microVM on your ow
 | project | lab |
 |---|---|
 | [kagent](https://github.com/kagent-dev/kagent) | [`kagent`](kagent): check the pull request out, build its images, install it in a kind cluster, read its diff, open the kagent UI |
+| [agentgateway](https://github.com/agentgateway/agentgateway) | [`agentgateway`](agentgateway): check the pull request out, build the UI and the proxy, run it standalone on an example config or your own, read its diff, open the UI |
 
 ## How a lab is used
 
@@ -21,8 +22,9 @@ cd ~/src/kagent && trylab pr 3564
 
 - A Linux x86_64 machine with KVM, and the [author pack](https://runlabs.io/author-pack) (`./prereqs` once).
 - `gh`, logged in, on your machine.
-- Whatever the lab's `config.yaml` lists under `env:`, in your environment when you start. The kagent lab needs `OPENAI_API_KEY` and `GH_TOKEN`. The guest runs the pull request's code, so make `GH_TOKEN` a fine-grained token that can only read public repositories, never your login's token.
-- Space: the kagent lab's disk is about 23 GB and its snapshot about 17 GB.
+- Whatever the lab's `config.yaml` lists under `env:`, in your environment when you start. The kagent lab needs `OPENAI_API_KEY` and `GH_TOKEN`; the agentgateway lab needs `GH_TOKEN`. The guest runs the pull request's code, so make `GH_TOKEN` a fine-grained token that can only read public repositories, never your login's token.
+- Space: the kagent lab's disk is about 23 GB and its snapshot about 17 GB. The agentgateway lab's disk is about 10 GB and its snapshot about 16 GB.
+- A lab that clones its project does so with the full history, not `--depth 1`: a pull request is fetched on top of that clone, and a shallow clone makes the fetch pull the whole history again (62 MiB and 12 s for a one-commit pull request, against about 19 KiB and half a second).
 
 ## Not for runlabs.io
 

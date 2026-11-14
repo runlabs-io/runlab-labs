@@ -1,0 +1,26 @@
+title: Review an agentgateway pull request
+description: Build a pull request of agentgateway in standalone mode and try it, on a snapshot that already holds the Rust and Node toolchains and a warm build cache.
+# The project's own tools: Rust (the version rust-toolchain.toml pins), Node and pnpm for the UI, and a clone of main with
+# its build caches warm. Standalone mode only: one binary and a config file, no cluster.
+time_limit: 90m
+# A first guess, to be measured.
+memory_mib: 16384
+vcpus: 8
+disk_gib: 40
+# Two rows: the pull request is read in the top pane while the build runs in the bottom one. Both start in the clone.
+layout: two-rows
+workdir: agentgateway
+snapshots:
+- ready
+env:
+  # gh in the guest checks out and diffs the pull request, and it needs a token even for a public repository.
+  # The lab runs the pull request's code, so use a fine-grained token with no permissions beyond reading public
+  # repositories, never your own login's token: export GH_TOKEN=<that token>
+  GH_TOKEN: $GH_TOKEN
+  # The admin port, and with it the UI, listens on localhost by default; the lab's link reaches it from outside the guest.
+  ADMIN_ADDR: 0.0.0.0:15000
+services:
+- name: ui
+  type: http
+  port: 15000
+  path: /ui

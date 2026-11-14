@@ -73,8 +73,9 @@ if [ -f /usr/share/bash-completion/completions/kubectl ]; then
 fi
 EOF2
 
-# main, as of this build. A pull request is fetched on top of it.
-git clone --depth 1 https://github.com/kagent-dev/kagent /root/kagent
+# main, as of this build, with its full history. A pull request is fetched on top of it, and a shallow clone makes that
+# fetch pull the whole history again (measured on agentgateway at 62 MiB and 12 s, runlab#1226).
+git clone https://github.com/kagent-dev/kagent /root/kagent
 cd /root/kagent
 
 # The kagent UI is reached through a kind port mapping: guest port 80 to node port 30080, where the lesson puts
