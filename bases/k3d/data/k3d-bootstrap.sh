@@ -92,7 +92,7 @@ kubectl -n metallb-system rollout status deployment/controller --timeout=300s
 kubectl -n metallb-system rollout status daemonset/speaker --timeout=300s
 gateway_ip=$(docker network inspect "k3d-${cluster}" | jq -r '[.[0].IPAM.Config[].Gateway | select(test("^[0-9.]+$"))][0]')
 prefix=${gateway_ip%.*}
-kubectl apply -f - << EOT
+pool=$(cat << EOT
 ---
 apiVersion: metallb.io/v1beta1
 kind: IPAddressPool
@@ -113,6 +113,18 @@ spec:
   ipAddressPools:
   - k3d-pool
 EOT
+)
+# MetalLB validates these objects through a webhook, and its service has no endpoints for a moment after the controller reports ready, so
+# the first apply can fail with "failed calling webhook". It is a race, not an error: try again until the webhook answers.
+attempt=1
+until echo "$pool" | kubectl apply -f -; do
+  if [ "$attempt" -ge 30 ]; then
+    echo "the MetalLB address pool was not accepted after $attempt tries" >&2
+    exit 1
+  fi
+  attempt=$((attempt + 1))
+  sleep 5
+done
 
 # pull-image IMAGE: docker pull, tried up to three times. A registry now and then answers with a passing 5xx (a 522
 # from cr.agentgateway.dev ended a lab build once), and one such answer should not end a build. Labs call it from product.sh.
