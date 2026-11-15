@@ -1,0 +1,49 @@
+# The k3d cluster of the Kubernetes base (vetted 2026-10-29, k3d-work/vet-report.md).
+# k3s bundles Gateway API CRDs as a Helm release it manages: off, so the base is neutral. A lab installs the version
+# it was verified with (its product.sh or its lesson).
+# metrics-server never becomes healthy in the microVM and no lab needs it: off.
+# ServiceLB stays ON: the labs' service links reach a gateway through the k3d load balancer, node port 80.
+# A lab that needs another listener port adds it in its product.sh: k3d cluster edit my-k8s-cluster --port-add N:N@loadbalancer.
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: my-k8s-cluster
+image: rancher/k3s:v1.37.1-k3s1
+servers: 1
+agents: 0
+
+kubeAPI:
+  hostPort: "6443"
+
+ports:
+- port: 80:80
+  nodeFilters:
+  - loadbalancer
+- port: 443:443
+  nodeFilters:
+  - loadbalancer
+
+options:
+  k3s:
+    extraArgs:
+    - arg: "--disable=traefik"
+      nodeFilters:
+      - server:0
+    - arg: "--disable=metrics-server"
+      nodeFilters:
+      - server:0
+    - arg: "--disable=gateway-api-crd"
+      nodeFilters:
+      - server:0
+
+# Push to localhost:5001 from the VM; the cluster pulls it through the mirror.
+registries:
+  create:
+    name: k3d-myreg
+    host: "0.0.0.0"
+    hostPort: "5001"
+  config: |
+    mirrors:
+      "localhost:5001":
+        endpoint:
+        - "http://k3d-myreg:5000"
