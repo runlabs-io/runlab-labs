@@ -17,7 +17,7 @@ HELM_VERSION=v3.19.0
 echo "pr-review setup starting"
 
 apt-get update
-apt-get install -y jq git gh make build-essential curl ca-certificates
+apt-get install -y jq git make build-essential curl ca-certificates
 
 fetch() { curl -fL --retry 3 -o "$1" "$2"; }
 
@@ -73,8 +73,8 @@ if [ -f /usr/share/bash-completion/completions/kubectl ]; then
 fi
 EOF2
 
-# main, as of this build, with its full history. A pull request is fetched on top of it, and a shallow clone makes that
-# fetch pull the whole history again (measured on agentgateway at 62 MiB and 12 s, runlab#1226).
+# main, as of this build, with its full history. trylab gives the guest the pull request's commits as a git bundle of what
+# this clone lacks (runlab#1227), and a bundle needs the commits it was cut from: a shallow clone would refuse it.
 git clone https://github.com/kagent-dev/kagent /root/kagent
 cd /root/kagent
 
