@@ -13,10 +13,6 @@ workdir: agentgateway
 snapshots:
 - ready
 env:
-  # gh in the guest checks out and diffs the pull request, and it needs a token even for a public repository.
-  # The lab runs the pull request's code, so use a fine-grained token with no permissions beyond reading public
-  # repositories, never your own login's token: export GH_TOKEN=<that token>
-  GH_TOKEN: $GH_TOKEN
   # The admin port, and with it the UI, listens on localhost by default; the lab's link reaches it from outside the guest.
   ADMIN_ADDR: 0.0.0.0:15000
 services:

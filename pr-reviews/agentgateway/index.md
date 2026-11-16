@@ -5,11 +5,11 @@ It builds the pull request and runs it standalone: one binary and a config file.
 
 ## Start the build
 
-Check out the pull request, build the UI and the proxy.
+The pull request is already checked out in the lab: trylab gave it the commits of your own checkout, so it is
+the branch you are on. Build the UI and the proxy.
 
 ```shell panel="build"
-gh pr checkout <pr> &&
-  (cd ui && pnpm install --frozen-lockfile && pnpm build) &&
+(cd ui && pnpm install --frozen-lockfile && pnpm build) &&
   cargo build --profile quick-release --features ui
 ```
 
@@ -17,10 +17,10 @@ The build takes a while. Read about the pull request below while it runs.
 
 ## Read the changes
 
-Once the checkout in the build pane has finished, show what the pull request changes (until then there is nothing to compare):
+Show what the pull request changes, against the commit it branched from:
 
 ```shell panel="view"
-gh pr diff <pr>
+git diff <merge-base>...HEAD
 ```
 
 ## Run it
