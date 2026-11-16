@@ -22,10 +22,10 @@ The lab itself is an ordinary lab folder. Three things in it are written for `tr
 
 ## What each lab needs
 
-- A Linux x86_64 machine with KVM, and the [author pack](https://runlabs.io/author-pack) (`./prereqs` once).
+- A Linux x86_64 machine with KVM, and the [author pack](https://runlabs.io/author-pack) **1.6.0 or later** (`./prereqs` once): an older `trylab pr` does not give the microVM the pull request.
 - `gh`, logged in, on your machine.
 - Whatever the lab's `config.yaml` lists under `env:`, in your environment when you start. The kagent lab needs `OPENAI_API_KEY`; the agentgateway lab needs nothing. No lab needs a GitHub token: the guest is given the pull request, it does not fetch it.
-- Space: the kagent lab's disk is about 23 GB and its snapshot about 17 GB. The agentgateway lab's disk is about 10 GB and its snapshot about 16 GB.
+- Space: the kagent lab's disk is about 25 GB and its snapshot about 17 GB. The agentgateway lab's disk is about 10 GB and its snapshot about 16 GB.
 - A lab that clones its project does so with the full history, not `--depth 1`: trylab sends the guest a git bundle of the commits the clone lacks (1.5 KB for a one-commit pull request), and a bundle needs the commits it was cut from, so a shallow clone refuses it.
 
 ## Not for runlabs.io
