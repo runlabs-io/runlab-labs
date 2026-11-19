@@ -1,0 +1,6 @@
+type: base
+disk_gib: 16
+memory_mib: 4096
+vcpus: 2
+# The compatibility line (runlab#1212): raised only for a change that breaks the labs on this base.
+version: 1
