@@ -1,6 +1,7 @@
 #!/bin/bash
 # pr-review: the tools kagent's development setup needs, a clone of main, a kind cluster with its registry and
-# MetalLB made by the project's own scripts, and the build caches warmed by one `make build`.
+# MetalLB made by the project's own scripts, and the build caches warmed by one `make build`. The cluster is left
+# stopped; story/ready.sh starts it at boot.
 # Kagent and Substrate are NOT installed here: Substrate's pod certificates last 24 hours and are not renewed after a
 # resume, so the lesson installs them for each pull request.
 # Runs as root after the common setup. Docker is already enabled.
@@ -118,70 +119,6 @@ spec:
     nodePort: 30080
 EOF2
 
-# The cluster and the registry are stopped in the image. Booting the microVM starts them again.
-cat > /usr/local/sbin/prreview-lab-start << 'EOF2'
-#!/bin/sh
-set -eu
-if [ ! -e /dev/kmsg ]; then
-  ln -s /dev/console /dev/kmsg
-fi
-i=0
-while [ "$i" -lt 60 ]; do
-  if docker info >/dev/null 2>&1; then
-    break
-  fi
-  i=$((i + 1))
-  sleep 1
-done
-docker info >/dev/null
-docker start kind-registry
-docker start kagent-control-plane
-i=0
-while [ "$i" -lt 120 ]; do
-  if kubectl --kubeconfig /root/.kube/config get --raw /readyz >/dev/null 2>&1; then
-    exit 0
-  fi
-  i=$((i + 1))
-  sleep 1
-done
-echo "the API server did not become ready" >&2
-exit 1
-EOF2
-chmod 755 /usr/local/sbin/prreview-lab-start
-
-if systemctl cat ssh.service >/dev/null 2>&1; then
-  ssh_unit=ssh.service
-elif systemctl cat sshd.service >/dev/null 2>&1; then
-  ssh_unit=sshd.service
-else
-  echo "no ssh service on this image" >&2
-  exit 1
-fi
-cat > /etc/systemd/system/prreview-cluster.service << EOF2
-[Unit]
-Description=Start the lab cluster
-After=docker.service
-Requires=docker.service
-Before=${ssh_unit}
-
-[Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/usr/local/sbin/prreview-lab-start
-
-[Install]
-WantedBy=multi-user.target
-EOF2
-mkdir -p "/etc/systemd/system/${ssh_unit}.d"
-cat > "/etc/systemd/system/${ssh_unit}.d/prreview.conf" << EOF2
-[Unit]
-After=prreview-cluster.service
-Requires=prreview-cluster.service
-EOF2
-systemctl daemon-reload
-systemctl enable prreview-cluster.service
-systemctl enable "$ssh_unit"
-systemctl disable ssh.socket || true
-
+# The cluster and the registry are stopped in the image: story/ready.sh starts them when the lab boots, before the snapshot is taken.
 docker stop kagent-control-plane kind-registry
 echo "pr-review setup done"
